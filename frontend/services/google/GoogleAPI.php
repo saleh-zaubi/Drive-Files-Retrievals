@@ -16,18 +16,13 @@ class GoogleAPI
     /** @var boolean $authorized */
     private $authorized;
 
-    /** @var string $tokenSessionName */
-    private $tokenSessionName;
-
-    /** @var string $credintionalsPath */
+    /** @var string|null $credintionalsPath */
     private $credintionalsPath;
 
     public function __construct()
     {
         $this->client = new Google_Client();
         $this->authorized = true;
-        $this->tokenSessionName = defined('GOOGLE_TOKEN_SESSION_NAME') ?
-                                    GOOGLE_TOKEN_SESSION_NAME : 'google_api_token';
         $this->credintionalsPath = file_exists(__DIR__ . '/files/credentials.json') ?
                                     __DIR__ . '/files/credentials.json' : null;
     }
@@ -61,32 +56,9 @@ class GoogleAPI
     }
 
     /**
-     * Set options
-     * Set the token in the request
-     * Check and refresh token if expired
-     */
-    public function initSetAndRefreshToken($scope)
-    {
-        $this->setOptions($scope);
-        $this->setToken();
-        $this->refreshTokenIfExpired();
-    }
-
-    /**
-     * Set options
-     * Get a token from google
-     * Save the token in session
-     */
-    public function initGetAndSaveToken($scope, $code)
-    {
-        $this->setOptions($scope);
-        $this->saveToken($this->getToken($code));
-    }
-
-    /**
      * Set google api options.
      */
-    private function setOptions($scope)
+    public function setOptions($scope)
     {
         $this->client->setApplicationName(Yii::$app->name);
         $this->client->setScopes($scope);
@@ -101,25 +73,16 @@ class GoogleAPI
      * @return array|mixed the google token
      * @throws Exception
      */
-    private function getToken($code)
+    public function getToken($code)
     {
         return $this->client->fetchAccessTokenWithAuthCode($code);
     }
 
     /**
-     * Get token after authorization. 
-     */
-    private function saveToken($token)
-    {
-        Yii::$app->session[$this->tokenSessionName] = json_encode($token);
-    }
-
-    /**
      * Set token to be used in the requests. 
      */
-    private function setToken()
+    public function setToken($token)
     {
-        $token = Yii::$app->session->get($this->tokenSessionName);
         if ($token) {
             $this->client->setAccessToken(
                 json_decode(
@@ -134,7 +97,7 @@ class GoogleAPI
      * Check if token is expired and refresh. 
      * @throws Exception
      */
-    private function refreshTokenIfExpired()
+    public function refreshTokenIfExpired()
     {
         if ($this->client->isAccessTokenExpired()) {
             if ($this->client->getRefreshToken()) {

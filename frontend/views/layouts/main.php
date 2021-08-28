@@ -38,12 +38,12 @@ AppAsset::register($this);
         // ['label' => 'Home', 'url' => ['/site/index']],
         // ['label' => 'About', 'url' => ['/site/about']],
         // ['label' => 'Contact', 'url' => ['/site/contact']],
-        ['label' => 'Drive Files List', 'url' => ['/drive/files-list']],
     ];
     if (Yii::$app->user->isGuest) {
-        // $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
-        // $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
+        $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
+        $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
     } else {
+        $menuItems[] = ['label' => 'Drive Files List', 'url' => ['/drive/files-list']];
         $menuItems[] = '<li>'
             . Html::beginForm(['/site/logout'], 'post', ['class' => 'form-inline'])
             . Html::submitButton(
